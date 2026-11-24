@@ -1,4 +1,4 @@
-package com.example.lms;
+package com.revature.lms;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
