@@ -1,16 +1,24 @@
+const nextJest = require("next/jest");
 
-module.exports = {
-  testEnvironment: 'jsdom',
-  roots: ['<rootDir>/src'],
-  transform: {
-    '^.+\\.[jt]sx?$': 'babel-jest'
-  },
+const createJestConfig = nextJest({
+  dir: "./",
+});
+
+const customJestConfig = {
+  testEnvironment: "jsdom",
+  roots: ["<rootDir>/src"],
   setupFilesAfterEnv: [
-    '@testing-library/jest-dom'
+    "@testing-library/jest-dom",
   ],
+  moduleNameMapper: {
+    "^@/(.*)$": "<rootDir>/src/$1",
+  },
   collectCoverageFrom: [
-    'src/**/*.{ts,tsx}',
-    '!src/**/*.d.ts'
+    "src/**/*.{ts,tsx}",
+    "!src/**/*.d.ts",
+    "!src/**/*.test.{ts,tsx}",
   ],
-  coverageDirectory: 'coverage'
+  coverageDirectory: "coverage",
 };
+
+module.exports = createJestConfig(customJestConfig);

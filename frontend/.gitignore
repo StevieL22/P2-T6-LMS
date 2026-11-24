@@ -47,3 +47,13 @@ coverage/
 .env.*.local
 application-local.yml
 application-local.yaml
+
+# Next.js
+.next/
+out/
+build/
+next-env.d.ts
+*.tsbuildinfo
+
+# Vercel
+.vercel/
