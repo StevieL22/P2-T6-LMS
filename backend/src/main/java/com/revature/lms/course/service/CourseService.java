@@ -1,4 +1,4 @@
-package com.revature.p2.t6.lms.course.service;
+package com.revature.lms.course.service;
 
 
 import org.springframework.stereotype.Service;

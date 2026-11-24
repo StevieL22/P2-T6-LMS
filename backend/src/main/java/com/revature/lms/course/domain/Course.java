@@ -1,4 +1,4 @@
-package com.revature.p2.t6.lms.course.domain;
+package com.revature.lms.course.domain;
 
 public class Course {
 

@@ -1,4 +1,4 @@
-package com.revature.p2.t6.lms.course.repository;
+package com.revature.lms.course.repository;
 
 public interface CategoryRepository {
 
