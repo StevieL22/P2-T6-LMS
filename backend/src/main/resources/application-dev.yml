@@ -1,0 +1,25 @@
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/lms_dev
+    username: ${MYSQL_USERNAME:root}
+    password: ${MYSQL_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  mongodb:
+    uri: mongodb://localhost:27017/lms_dev
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: true
+
+  flyway:
+    enabled: true
+
+app:
+  datasource:
+    postgresql:
+      url: jdbc:postgresql://localhost:5432/lms_dev
+      username: ${POSTGRES_USERNAME:postgres}
+      password: ${POSTGRES_PASSWORD}
+      driver-class-name: org.postgresql.Driver
