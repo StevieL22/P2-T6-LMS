@@ -1,18 +1,21 @@
 # P2-T6-LMS
-2nd project for Revature paid training working on Notifications &amp; Reporting for project 2.
 
-**Tech Stack**:
-Backend: React, J25, Spring Boot(STRICTLY 4.1.2), Maven, Multiple prof(dev, test, stage, prod), Swagger, JWT, Spring Security, JUnit5, Mockito
-Playwright, Postman, Thunder-client, STS IDE/ Intellij IDEA
+## Project Overview
 
-**Frontend**: React with vite, JWT, Bootstrap/Material UI/React-Material UI/Tailwind CSS
+Learning Management System (LMS) developed by Team 6 as Project 2 for Revature training.
 
-**Should have**: utils/enums/dto, folow api naming conventions(end with plural: api/v1/users(specified operation/class))
+The application follows a monolithic full-stack architecture with a Spring Boot backend and a React frontend.
 
-**Data Structure**: tables should be in at least 3NF form, minimum 10 record in each table, single db for entire app(lms-db, create all tables/views/store-procedures
-under this DB). Add audit columns in each table[created_at, created_by, modified_at, modified_by]
+## Project Modules
 
+- Member 1 — Identity and Access Management
+- Member 2 — Course Management
+- Member 3 — Learning Content and Delivery
+- Member 4 — Enrollment and Assessment
+- Member 5 — Reviews and Feedback
+- Member 6 — Notifications and Reporting
 
+## Technology Stack
 
 ## Bootup
 
@@ -21,7 +24,7 @@ Run these commands from a Windows terminal.
 ### Prerequisites
 
 - Node.js and npm for the frontend
-- Java 17 or newer for the backend
+- Java 25 for the backend
 - PostgreSQL if you want to run the application with PostgreSQL
 
 ### Frontend
@@ -32,13 +35,11 @@ npm install
 npm run dev
 ```
 
-The Vite development server prints the local URL in the terminal, usually
-`http://localhost:5173`.
+The Next.js development server is available at `http://localhost:3000`.
 
 ### SQL / PostgreSQL
 
-The project includes PostgreSQL support, but it does not currently contain
-database migrations or a datasource configuration. Create the database once:
+The project includes PostgreSQL support, but database migrations and a datasource configuration must be provided before using PostgreSQL. Create the database once:
 
 ```sql
 psql -U postgres
@@ -55,11 +56,7 @@ $env:SPRING_DATASOURCE_PASSWORD="your_password"
 $env:SPRING_JPA_HIBERNATE_DDL_AUTO="update"
 ```
 
-Place Flyway SQL migrations under
-`backend/src/main/resources/db/migration` before using migration-based schema setup.
-
-The backend also includes H2 for local development. If no PostgreSQL datasource
-is configured, Spring Boot may use the embedded H2 database instead.
+Place Flyway SQL migrations under `backend/src/main/resources/db/migration` before using migration-based schema setup. H2 is also included for local development.
 
 ### Backend
 
@@ -70,7 +67,8 @@ cd backend
 .\mvnw.cmd spring-boot:run
 ```
 
-The backend starts on `http://localhost:8080` by default.
+The backend starts at `http://localhost:8080`. Swagger UI is available at `http://localhost:8080/swagger-ui/index.html`, and the health check at `http://localhost:8080/actuator/health`.
 
+## Testing
 
-
+Run backend tests with `cd backend` and `./mvnw clean test -Dspring.profiles.active=test`. From `frontend`, run `npm test` or `npm run test:coverage`; run Cypress with `npx cypress run` after starting the frontend.
