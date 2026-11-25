@@ -20,5 +20,10 @@ public interface UserRepository extends JpaRepository<User, Long> {
             """)
     Optional<User> findByNormalizedEmail(@Param("email") String email);
 
-    boolean existsByEmailIgnoreCase(String email);
+    @Query("""
+            SELECT CASE WHEN COUNT(u) > 0 THEN TRUE ELSE FALSE END
+            FROM User u
+            WHERE LOWER(TRIM(u.email)) = LOWER(TRIM(:email))
+            """)
+    boolean existsByNormalizedEmail(@Param("email") String email);
 }
