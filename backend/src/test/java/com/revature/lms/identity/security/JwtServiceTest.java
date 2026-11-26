@@ -26,7 +26,10 @@ class JwtServiceTest {
 
         SecretKey secretKey = configuration.jwtSecretKey(secret);
         JwtEncoder encoder = configuration.jwtEncoder(secretKey);
-        JwtDecoder decoder = configuration.jwtDecoder(secretKey);
+        JwtDecoder decoder = configuration.jwtDecoder(
+                secretKey,
+                "https://lms.revature.com"
+        );
 
         jwtService = new JwtService(
                 encoder,

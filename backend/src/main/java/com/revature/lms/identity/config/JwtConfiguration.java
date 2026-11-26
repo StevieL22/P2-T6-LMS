@@ -7,6 +7,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
+import org.springframework.security.oauth2.jwt.JwtValidators;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 
@@ -16,10 +17,10 @@ import java.util.Base64;
 
 @Configuration
 public class JwtConfiguration {
-    
+
     @Bean
     public SecretKey jwtSecretKey(
-        @Value("${app.security.jwt.secret}") String encodedSecret
+            @Value("${app.security.jwt.secret}") String encodedSecret
     ) {
         byte[] decodedSecret;
 
@@ -27,8 +28,7 @@ public class JwtConfiguration {
             decodedSecret = Base64.getDecoder().decode(encodedSecret);
         } catch (IllegalArgumentException exception) {
             throw new IllegalStateException(
-                "JWT secret must be valid Base64.",
-                exception
+                    "JWT secret must be valid Base64.", exception
             );
         }
 
@@ -43,16 +43,23 @@ public class JwtConfiguration {
 
     @Bean
     public JwtEncoder jwtEncoder(SecretKey jwtSecretKey) {
-        return new NimbusJwtEncoder(
-                new ImmutableSecret<>(jwtSecretKey)
-        );
+        return new NimbusJwtEncoder(new ImmutableSecret<>(jwtSecretKey));
     }
 
     @Bean
-    public JwtDecoder jwtDecoder(SecretKey jwtSecretKey) {
-        return NimbusJwtDecoder
+    public JwtDecoder jwtDecoder(
+            SecretKey jwtSecretKey,
+            @Value("${app.security.jwt.issuer}") String issuer
+    ) {
+        NimbusJwtDecoder decoder = NimbusJwtDecoder
                 .withSecretKey(jwtSecretKey)
                 .macAlgorithm(MacAlgorithm.HS256)
                 .build();
+
+        decoder.setJwtValidator(
+                JwtValidators.createDefaultWithIssuer(issuer)
+        );
+
+        return decoder;
     }
 }
