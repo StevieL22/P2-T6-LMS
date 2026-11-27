@@ -98,6 +98,16 @@ public class UserService {
         return buildProfileResponse(updatedUser);
     }
 
+    @Transactional
+    public UserProfileResponse changeUserRole(
+            Long userId,
+            RoleName newRole
+    ) {
+        userRoleService.changeRole(userId, newRole);
+
+        return getUserProfile(userId);
+    }
+
 
     private UserProfileResponse buildProfileResponse(User user) {
         

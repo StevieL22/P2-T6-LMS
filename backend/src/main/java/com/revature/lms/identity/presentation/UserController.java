@@ -1,11 +1,13 @@
 package com.revature.lms.identity.presentation;
 
+import com.revature.lms.identity.application.dto.ChangeUserRoleRequest;
 import com.revature.lms.identity.application.dto.UpdateUserProfileRequest;
 import com.revature.lms.identity.application.dto.UserProfileResponse;
 import com.revature.lms.identity.application.service.UserService;
 import com.revature.lms.identity.security.LmsUserPrincipal;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/v1/users")
 @SecurityRequirement(name = "bearerAuth")
 public class UserController {
-    
+
     private final UserService userService;
 
     public UserController(UserService userService) {
@@ -36,5 +38,14 @@ public class UserController {
                 principal.userId(),
                 request
         );
+    }
+
+    @PatchMapping("/{userId}/role")
+    @PreAuthorize("hasRole('ADMIN')")
+    public UserProfileResponse changeUserRole(
+            @PathVariable Long userId,
+            @Valid @RequestBody ChangeUserRoleRequest request
+    ) {
+        return userService.changeUserRole(userId, request.role());
     }
 }

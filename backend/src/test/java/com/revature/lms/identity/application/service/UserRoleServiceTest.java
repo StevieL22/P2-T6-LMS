@@ -5,6 +5,7 @@ import com.revature.lms.identity.domain.entity.User;
 import com.revature.lms.identity.domain.enums.RoleName;
 import com.revature.lms.identity.exception.ResourceNotFoundException;
 import com.revature.lms.identity.exception.RoleAlreadyAssignedException;
+import com.revature.lms.identity.exception.LastActiveAdminException;
 import com.revature.lms.identity.repository.AppRoleRepository;
 import com.revature.lms.identity.repository.UserRepository;
 import com.revature.lms.identity.repository.UserRoleRepository;
@@ -147,4 +148,152 @@ class UserRoleServiceTest {
                 () -> userRoleService.getRoleForUser(user.getUserId())
         );
     }
+
+        @Test
+        void shouldChangeExistingUserRole() {
+        User user = createUser();
+
+        createRole(RoleName.LEARNER);
+        createRole(RoleName.TRAINER);
+
+        userRoleService.assignRole(user.getUserId(), RoleName.LEARNER);
+
+        var updatedRole = userRoleService.changeRole(
+                user.getUserId(),
+                RoleName.TRAINER
+        );
+
+        assertEquals(RoleName.TRAINER, updatedRole.getRole().getName());
+        assertEquals(
+                RoleName.TRAINER,
+                userRoleService.getRoleForUser(user.getUserId())
+        );
+
+        assertEquals(1, userRoleRepository.count());
+        }
+
+        @Test
+        void shouldPreventDemotingTheLastActiveAdmin() {
+        User user = createUser();
+
+        createRole(RoleName.ADMIN);
+        createRole(RoleName.LEARNER);
+
+        userRoleService.assignRole(user.getUserId(), RoleName.ADMIN);
+
+        assertThrows(
+                LastActiveAdminException.class,
+                () -> userRoleService.changeRole(
+                        user.getUserId(),
+                        RoleName.LEARNER
+                )
+        );
+
+        assertEquals(
+                RoleName.ADMIN,
+                userRoleService.getRoleForUser(user.getUserId())
+        );
+        }
+
+        @Test
+        void shouldAllowDemotingAdminWhenAnotherActiveAdminExists() {
+        User firstAdmin = userRepository.saveAndFlush(
+                new User("first-admin@example.com", "hash", "First", "Admin", null)
+        );
+
+        User secondAdmin = userRepository.saveAndFlush(
+                new User("second-admin@example.com", "hash", "Second", "Admin", null)
+        );
+
+        createRole(RoleName.ADMIN);
+        createRole(RoleName.TRAINER);
+
+        userRoleService.assignRole(firstAdmin.getUserId(), RoleName.ADMIN);
+        userRoleService.assignRole(secondAdmin.getUserId(), RoleName.ADMIN);
+
+        var updatedRole = userRoleService.changeRole(
+                firstAdmin.getUserId(),
+                RoleName.TRAINER
+        );
+
+        assertEquals(RoleName.TRAINER, updatedRole.getRole().getName());
+        assertEquals(
+                RoleName.ADMIN,
+                userRoleService.getRoleForUser(secondAdmin.getUserId())
+        );
+        }
+
+        @Test
+        void shouldThrowExceptionWhenChangingRoleForMissingUser() {
+        assertThrows(
+                ResourceNotFoundException.class,
+                () -> userRoleService.changeRole(
+                        99999L,
+                        RoleName.TRAINER
+                )
+        );
+        }
+
+        @Test
+        void shouldThrowExceptionWhenChangingRoleForUnassignedUser() {
+        User user = createUser();
+        createRole(RoleName.TRAINER);
+
+        assertThrows(
+                ResourceNotFoundException.class,
+                () -> userRoleService.changeRole(
+                        user.getUserId(),
+                        RoleName.TRAINER
+                )
+        );
+        }
+
+        @Test
+        void shouldThrowExceptionWhenChangingToMissingRole() {
+        User user = createUser();
+        createRole(RoleName.LEARNER);
+
+        userRoleService.assignRole(
+                user.getUserId(),
+                RoleName.LEARNER
+        );
+
+        assertThrows(
+                ResourceNotFoundException.class,
+                () -> userRoleService.changeRole(
+                        user.getUserId(),
+                        RoleName.TRAINER
+                )
+        );
+
+        assertEquals(
+                RoleName.LEARNER,
+                userRoleService.getRoleForUser(user.getUserId())
+        );
+        }
+
+        @Test
+        void shouldAllowDemotingInactiveAdminWhenLastActiveAdmin() {
+        User user = createUser();
+        user.setActive(false);
+        userRepository.saveAndFlush(user);
+
+        createRole(RoleName.ADMIN);
+        createRole(RoleName.LEARNER);
+
+        userRoleService.assignRole(
+                user.getUserId(),
+                RoleName.ADMIN
+        );
+
+        var updatedRole = userRoleService.changeRole(
+                user.getUserId(),
+                RoleName.LEARNER
+        );
+
+        assertEquals(
+                RoleName.LEARNER,
+                updatedRole.getRole().getName()
+        );
+        }
 }

@@ -274,6 +274,76 @@ class IdentityApiIntegrationTest {
         }
     }
 
+        @Test
+        void shouldAllowAdminToChangeUserRole() throws Exception {
+        registerUser("trainer-candidate@example.com");
+
+        var targetUser = userRepository
+                .findByNormalizedEmail("trainer-candidate@example.com")
+                .orElseThrow();
+
+        String adminToken = jwtService.generateToken(
+                999L,
+                "admin@example.com",
+                RoleName.ADMIN
+        );
+
+        mockMvc.perform(patch(USERS_URL + "/" + targetUser.getUserId() + "/role")
+                        .header("Authorization", "Bearer " + adminToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                        "role": "TRAINER"
+                                }
+                                """))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.userId").value(
+                        targetUser.getUserId()
+                ))
+                .andExpect(jsonPath("$.role").value("TRAINER"));
+
+        assertEquals(
+                RoleName.TRAINER,
+                userRoleRepository.findByUser_UserId(targetUser.getUserId())
+                        .orElseThrow()
+                        .getRole()
+                        .getName()
+        );
+        }
+
+        @Test
+        void shouldRejectLearnerChangingUserRole() throws Exception {
+        registerUser("learner-role-test@example.com");
+
+        var targetUser = userRepository
+                .findByNormalizedEmail("learner-role-test@example.com")
+                .orElseThrow();
+
+        String learnerToken = jwtService.generateToken(
+                targetUser.getUserId(),
+                targetUser.getEmail(),
+                RoleName.LEARNER
+        );
+
+        mockMvc.perform(patch(USERS_URL + "/" + targetUser.getUserId() + "/role")
+                        .header("Authorization", "Bearer " + learnerToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                        "role": "TRAINER"
+                                }
+                                """))
+                .andExpect(status().isForbidden());
+
+        assertEquals(
+                RoleName.LEARNER,
+                userRoleRepository.findByUser_UserId(targetUser.getUserId())
+                        .orElseThrow()
+                        .getRole()
+                        .getName()
+        );
+        }
+
     private void registerUser(String email) throws Exception {
         mockMvc.perform(post(AUTH_URL + "/register")
                         .contentType(MediaType.APPLICATION_JSON)
