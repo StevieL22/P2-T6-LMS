@@ -27,3 +27,11 @@ export async function register(
 
     return response.data;
 }
+
+export async function getCurrentUser(): Promise<UserProfileResponse> {
+    const response = await api.get<UserProfileResponse>(
+        "/api/v1/users/me",
+    );
+
+    return response.data;
+}

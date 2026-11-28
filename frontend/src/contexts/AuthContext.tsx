@@ -1,4 +1,3 @@
-
 "use client";
 
 import {
@@ -9,17 +8,24 @@ import {
     useState,
 } from "react";
 
+import type React from "react";
+
 import { setApiAccessToken } from "@/services/api";
 import type {
     AuthenticationResponse,
+    RoleName,
     UserProfileResponse,
 } from "@/types/auth";
+import { getCurrentUser } from "@/services/auth-service";
 
 interface AuthContextValue {
     user: UserProfileResponse | null;
     accessToken: string | null;
     isAuthenticated: boolean;
-    login: (response: AuthenticationResponse) => void;
+    isDemo: boolean;
+    isLoading: boolean;
+    login: (response: AuthenticationResponse) => Promise<void>;
+    demoLogin: (role: RoleName) => void;
     logout: () => void;
 }
 
@@ -32,39 +38,80 @@ export function AuthProvider({
 }) {
     const [user, setUser] = useState<UserProfileResponse | null>(null);
     const [accessToken, setAccessToken] = useState<string | null>(null);
+    const [isDemo, setIsDemo] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
 
-    const login = useCallback((response: AuthenticationResponse) => {
+    const login = useCallback(async (response: AuthenticationResponse) => {
+        setIsLoading(true);
+        setIsDemo(false);
+
         setAccessToken(response.accessToken);
         setApiAccessToken(response.accessToken);
 
-        setUser({
-        userId: response.userId,
-        email: response.email,
-        firstName: "",
-        lastName: "",
-        phone: null,
-        active: true,
-        role: response.role,
-        createdAt: "",
-        updatedAt: "",
-        });
+        try {
+            const profile = await getCurrentUser();
+            setUser(profile);
+        } catch (error) {
+            setUser(null);
+            setAccessToken(null);
+            setApiAccessToken(null);
+            throw error;
+        } finally {
+            setIsLoading(false);
+        }
+    }, []);
+
+    const demoLogin = useCallback((role: RoleName) => {
+        const now = new Date().toISOString();
+
+        const demoUser: UserProfileResponse = {
+            userId: -1,
+            email: `demo.${role.toLowerCase()}@team6lms.local`,
+            firstName: "Demo",
+            lastName:
+                role.charAt(0) + role.slice(1).toLowerCase(),
+            phone: null,
+            active: true,
+            role,
+            createdAt: now,
+            updatedAt: now,
+        };
+
+        setApiAccessToken(null);
+        setAccessToken(null);
+        setUser(demoUser);
+        setIsDemo(true);
+        setIsLoading(false);
     }, []);
 
     const logout = useCallback(() => {
         setUser(null);
         setAccessToken(null);
         setApiAccessToken(null);
+        setIsDemo(false);
+        setIsLoading(false);
     }, []);
 
     const value = useMemo(
-    () => ({
+        () => ({
             user,
             accessToken,
-            isAuthenticated: Boolean(accessToken),
+            isAuthenticated: Boolean(user && (accessToken || isDemo)),
+            isDemo,
+            isLoading,
             login,
+            demoLogin,
             logout,
         }),
-            [user, accessToken, login, logout],
+        [
+            user,
+            accessToken,
+            isDemo,
+            isLoading,
+            login,
+            demoLogin,
+            logout,
+        ],
     );
 
     return (

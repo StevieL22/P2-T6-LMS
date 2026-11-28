@@ -271,3 +271,102 @@ input {
     gap: 0;
   }
 }
+
+/* Demo Access Section */
+.demo-access {
+    margin-top: 1.5rem;
+    padding: 1rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    background-color: #f8fafc;
+}
+
+.demo-heading {
+    margin-bottom: 1rem;
+}
+
+.demo-heading h3 {
+    margin: 0 0 0.35rem;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #1e293b;
+}
+
+.demo-heading p {
+    margin: 0;
+    font-size: 0.85rem;
+    color: #64748b;
+}
+
+/* Demo Buttons */
+.demo-buttons {
+    display: flex;
+    gap: 0.6rem;
+}
+
+.demo-button {
+    flex: 1;
+    padding: 0.65rem 0.5rem;
+    border: 1px solid #cbd5e1;
+    border-radius: 7px;
+    background-color: #ffffff;
+    color: #334155;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease,
+                border-color 0.2s ease,
+                transform 0.2s ease;
+}
+
+.demo-button:hover:not(:disabled) {
+    background-color: #e2e8f0;
+    border-color: #94a3b8;
+    transform: translateY(-1px);
+}
+
+.demo-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Role-specific accents */
+.demo-admin {
+    border-color: #c4b5fd;
+    color: #6d28d9;
+}
+
+.demo-admin:hover:not(:disabled) {
+    background-color: #ede9fe;
+    border-color: #8b5cf6;
+}
+
+.demo-trainer {
+    border-color: #93c5fd;
+    color: #1d4ed8;
+}
+
+.demo-trainer:hover:not(:disabled) {
+    background-color: #dbeafe;
+    border-color: #3b82f6;
+}
+
+.demo-learner {
+    border-color: #86efac;
+    color: #15803d;
+}
+
+.demo-learner:hover:not(:disabled) {
+    background-color: #dcfce7;
+    border-color: #22c55e;
+}
+
+@media (max-width: 480px) {
+    .demo-buttons {
+        flex-direction: column;
+    }
+
+    .demo-button {
+        width: 100%;
+    }
+}
